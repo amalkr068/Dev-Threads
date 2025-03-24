@@ -33,6 +33,7 @@ const getUserProfile = async (req, res) => {
 const signupUser = async (req, res) => {
 	try {
 		const { name, email, username, password } = req.body;
+		if(!name || !email || !username || !password ) return  res.status(400).json({ error: "Please Enter all Fields" });
 		const user = await User.findOne({ $or: [{ email }, { username }] });
 
 		if (user) {
@@ -76,10 +77,10 @@ const loginUser = async (req, res) => {
 		const { username, password } = req.body;
 		const user = await User.findOne({ username });
 
-		if(user.isBlocked) return res.status(400).json({ error: "User is Blocked by the Admin" })
 		const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
 
-		if (!user || !isPasswordCorrect) return res.status(400).json({ error: "Invalid username or password" });
+		if (!user || !isPasswordCorrect) return res.status(400).json({ error: "Please Enter all Fields" });
+		if(user.isBlocked) return res.status(400).json({ error: "User is Blocked by the Admin" })
 
 		if (user.isFrozen) {
 			user.isFrozen = false;
