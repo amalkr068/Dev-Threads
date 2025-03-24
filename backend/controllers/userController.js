@@ -59,6 +59,8 @@ const signupUser = async (req, res) => {
 				username: newUser.username,
 				bio: newUser.bio,
 				profilePic: newUser.profilePic,
+				isAdmin:newUser.isAdmin
+				
 			});
 		} else {
 			res.status(400).json({ error: "Invalid user data" });
@@ -73,6 +75,8 @@ const loginUser = async (req, res) => {
 	try {
 		const { username, password } = req.body;
 		const user = await User.findOne({ username });
+
+		if(user.isBlocked) return res.status(400).json({ error: "User is Blocked by the Admin" })
 		const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
 
 		if (!user || !isPasswordCorrect) return res.status(400).json({ error: "Invalid username or password" });
@@ -91,6 +95,8 @@ const loginUser = async (req, res) => {
 			username: user.username,
 			bio: user.bio,
 			profilePic: user.profilePic,
+			isAdmin:user.isAdmin
+		
 		});
 	} catch (error) {
 		res.status(500).json({ error: error.message });
